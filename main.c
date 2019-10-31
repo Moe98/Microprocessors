@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <math.h>
 
 /**
  * sample -> contains the values of the sample.
@@ -29,18 +30,41 @@ void printSample() {
         printf("%d%s", sample[i], i < sampleSize - 1 ? ", " : "}\n");
 }
 
-int summation();
+double summation(double difference){
+    double summation = 0;
+    for(int i = 0; i < sampleSize; i++)
+        summation += (sample[i] - difference);
+    return summation;
+}
 
-double mean();
+double mean(){
+    return (summation(0)/(sampleSize*1.0));
+}
 
-double variance();
+double squareDifference(double mean){
+    double numerator = 0.0;
+    for(int i = 0; i < sampleSize; i++)
+        numerator += pow((sample[i] - mean), 2);
+    return numerator;
+}
 
-double standardDeviation();
+double standardDeviation(){
+    double average = mean();
+    double numerator = squareDifference(average);
+    double denominator = sampleSize - 1;
+    return sqrt(numerator/denominator);
+}
+
+double variance(){
+    return pow(standardDeviation(), 2);
+}
 
 int mode();
 
 int main() {
     generateRandomSample(10, 100);
     printSample();
+    printf("Mean is: %f\n",mean());
+    printf("Standard Deviation is: %f, Variance is %f", standardDeviation(), variance());
     return 0;
 }
