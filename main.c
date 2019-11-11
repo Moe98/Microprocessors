@@ -101,7 +101,7 @@ int main() {
 					numerator+=tmpNumerator;		
 				}
 				double variance = (numerator/(sampleSize-1));
-				printf("Standard Variation is: %f\n", sqrt(variance));
+				printf("Standard Deviation is: %f\n", sqrt(variance));
 				printf("Variance is: %f\n", variance);
 				for(int i = 0; i <= maxElement; i++)
         				frequency[i] = 0;
