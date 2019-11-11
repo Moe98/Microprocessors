@@ -6,7 +6,6 @@
 
 #define num 50
 
-int array[] = {1, 2, 3, 4, 5};
 int temp[num];
 int *sample, *sampleTemp,sampleSize, maxElement, *frequency, *frequencyTemp;
 int operation = 0;
