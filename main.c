@@ -62,6 +62,18 @@ void readTestCase(int testCaseNumber) {
     }
 }
 
+void readInput() {
+    printf("Enter size of Sample:\n");
+    scanf("%d", &sampleSize);
+    printf("Enter the values of the sample (Positive Integers < 1e6) separated by white spaces:\n");
+    sample = malloc(sampleSize * sizeof(int));
+    for (int i = 0; i < sampleSize; i++) {
+        scanf("%d", &sample[i]);
+        if (i == 0 || sample[i] > maxElement)
+            maxElement = sample[i];
+    }
+}
+
 int main() {
 
     int process_id, number_of_processes, elements_per_process, elements_received;
@@ -72,9 +84,10 @@ int main() {
 
     if (process_id == 0) {
 //        readTestCase(1);
-//       readTestCase(2);
-        readTestCase(3);
+//        readTestCase(2);
+//        readTestCase(3);
 //        generateRandomSample(rand() % (int)(1e4), rand() % (int)(1e5));
+        readInput();
         printSample();
     }
 
