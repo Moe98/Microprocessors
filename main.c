@@ -25,6 +25,41 @@ void generateRandomSample(int size, int maxNum) {
         sample[i] = rand() % (maxElement + 1);
 }
 
+void readTestCase(int testCaseNumber) {
+    const int OUTPUT_LINES = 6;
+    freopen("/home/abdulrahman/CLionProjects/Microprocessors/Test-Cases", "r", stdin);
+    int testCasesCount;
+    scanf("%d", &testCasesCount);
+    for (int testCase = 1; testCase <= testCasesCount; testCase++) {
+        scanf("%d", &sampleSize);
+        sample = malloc(sampleSize * sizeof(int));
+        for (int i = 0; i < sampleSize; i++) {
+            scanf("%d", &sample[i]);
+            if (i == 0 || sample[i] > maxElement)
+                maxElement = sample[i];
+        }
+        frequency = malloc((maxElement + 1) * sizeof(int));
+        char temp[100];
+        for (int i = 0; i < OUTPUT_LINES; i++)
+            fgets(temp, 100, stdin);
+        if (testCase == testCaseNumber) break;
+    }
+}
+
+void readInput() {
+    printf("Enter size of Sample:\n");
+    scanf("%d", &sampleSize);
+    printf("Enter the values of the sample (Positive Integers < 1e6) separated by white spaces:\n");
+    sample = malloc(sampleSize * sizeof(int));
+    for (int i = 0; i < sampleSize; i++) {
+        scanf("%d", &sample[i]);
+        if (i == 0 || sample[i] > maxElement)
+            maxElement = sample[i];
+    }
+    frequency = malloc((maxElement + 1) * sizeof(int));
+}
+
+
 void printSample() {
     printf("{");
     for(int i = 0; i < sampleSize; i++)
@@ -94,10 +129,15 @@ int mode(){
 }
 
 int main() {
-    generateRandomSample(50, 100);
+//    readTestCase(1);
+//    readTestCase(2);
+//    readTestCase(3);
+//    generateRandomSample(50, 100);
+    readInput();
     printSample();
+    printf("Sum is: %d\n", (int)(summation(0) + 0.01));
+    printf("Average is: %f\n", mean());
+    printf("Standard Deviation is: %f\nVariance is %f\n", standardDeviation(), variance());
     printf("Mode is: %d\n", mode());
-    printf("Mean is: %f\n",mean());
-    printf("Standard Deviation is: %f, Variance is %f", standardDeviation(), variance());
     return 0;
 }
