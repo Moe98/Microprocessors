@@ -1,0 +1,1 @@
+/usr/bin/cc -g  -rdynamic CMakeFiles/Mil3.dir/main.c.o  -o Mil3 /usr/lib/x86_64-linux-gnu/libmpich.so 
