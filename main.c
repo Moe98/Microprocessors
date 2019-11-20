@@ -52,7 +52,6 @@ int main() {
     MPI_Init(NULL, NULL);
     MPI_Comm_rank(MPI_COMM_WORLD, &process_id);
     MPI_Comm_size(MPI_COMM_WORLD, &number_of_processes);
-    int x = 0;
 
     readTestCase(1);
 //    readTestCase(2);
@@ -81,6 +80,7 @@ int main() {
         }
         MPI_Bcast(&Average, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
         if (process_id == 0) {
+            printSample();
             printf("Sum of array is: %d\n", totalSum);
             printf("Average is: %.2f\n", Average);
         }
@@ -94,8 +94,8 @@ int main() {
         MPI_Reduce(&values, &totalValues, 1, MPI_LONG_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
         if (process_id == 0) {
             long double variance = (totalValues * 1.0) / (sampleSize - 1);
-            printf("Standard Deviation is: %f\n", sqrt(variance));
-            printf("Variance is: %Lf\n", variance);
+            printf("Standard Deviation is: %.2f\n", sqrt(variance));
+            printf("Variance is: %.2Lf\n", variance);
         }
         int *freq = malloc((maxElement + 1) * sizeof(int));
         if (sampleSize % number_of_processes != 0 && process_id == number_of_processes - 1) {
@@ -121,7 +121,6 @@ int main() {
         }
         if (process_id == 0) {
             printf("Mode is: %d\n", index);
-            printf("Number of Repitions: %d\n", Max);
         }
         MPI_Finalize();
     } else {
@@ -137,8 +136,8 @@ int main() {
             for (int i = 0; i < sampleSize; i++)
                 values += ((sample[i] - Average) * (sample[i] - Average));
             long double variance = values / sampleSize;
-            printf("Standard Deviation is: %f\n", sqrt(variance));
-            printf("Variance is: %Lf\n", variance);
+            printf("Standard Deviation is: %.2f\n", sqrt(variance));
+            printf("Variance is: %.2Lf\n", variance);
             int *freq = malloc((maxElement + 1) * sizeof(int));
             for (int i = 0; i < sampleSize; i++) {
                 freq[sample[i]] += 1;
@@ -152,8 +151,6 @@ int main() {
                 }
             }
             printf("Mode is: %d\n", index);
-            printf("Number of Repetitions: %d\n", Max);
-
             MPI_Finalize();
             return 0;
         } else {
