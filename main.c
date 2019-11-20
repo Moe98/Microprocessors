@@ -125,7 +125,6 @@ int main() {
         MPI_Finalize();
     } else {
         if (process_id == 0) {
-            printf("The array size is less than the number of processes only one process will be working\n");
             for (int i = 0; i < sampleSize; ++i) {
                 sum += sample[i];
             }
@@ -135,7 +134,7 @@ int main() {
             double values;
             for (int i = 0; i < sampleSize; i++)
                 values += ((sample[i] - Average) * (sample[i] - Average));
-            long double variance = values / sampleSize;
+            long double variance = (values * 1.0) / (sampleSize - 1);
             printf("Standard Deviation is: %.2f\n", sqrt(variance));
             printf("Variance is: %.2Lf\n", variance);
             int *freq = malloc((maxElement + 1) * sizeof(int));
