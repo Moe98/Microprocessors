@@ -97,24 +97,23 @@ int main() {
             printf("Standard Deviation is: %f\n", sqrt(variance));
             printf("Variance is: %Lf\n", variance);
         }
-        int MaxElement = 30;
-        int *freq = malloc((MaxElement + 1) * sizeof(int));
+        int *freq = malloc((maxElement + 1) * sizeof(int));
         if (sampleSize % number_of_processes != 0 && process_id == number_of_processes - 1) {
             end = sampleSize;
         }
         for (int i = start; i < end; i++) {
             freq[sample[i]] += 1;
         }
-        int *freqFinal = malloc((MaxElement + 1) * sizeof(int));
+        int *freqFinal = malloc((maxElement + 1) * sizeof(int));
         if (sampleSize % number_of_processes != 0 && process_id == number_of_processes - 1) {
             end = sampleSize;
         }
-        for (int i = 0; i < MaxElement + 1; i++) {
+        for (int i = 0; i < maxElement + 1; i++) {
             MPI_Reduce(&freq[i], &freqFinal[i], 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
         }
         int Max = 0;
         int index = -1;
-        for (int i = 0; i < MaxElement + 1; i++) {
+        for (int i = 0; i < maxElement + 1; i++) {
             if (freqFinal[i] > Max) {
                 Max = freqFinal[i];
                 index = i;
@@ -128,7 +127,6 @@ int main() {
     } else {
         if (process_id == 0) {
             printf("The array size is less than the number of processes only one process will be working\n");
-            int MaxElement = 30;
             for (int i = 0; i < sampleSize; ++i) {
                 sum += sample[i];
             }
@@ -141,13 +139,13 @@ int main() {
             long double variance = values / sampleSize;
             printf("Standard Deviation is: %f\n", sqrt(variance));
             printf("Variance is: %Lf\n", variance);
-            int *freq = malloc((MaxElement + 1) * sizeof(int));
+            int *freq = malloc((maxElement + 1) * sizeof(int));
             for (int i = 0; i < sampleSize; i++) {
                 freq[sample[i]] += 1;
             }
             int Max = -1;
             int index = 0;
-            for (int i = 0; i < MaxElement + 1; i++) {
+            for (int i = 0; i < maxElement + 1; i++) {
                 if (freq[i] > Max) {
                     Max = freq[i];
                     index = i;
