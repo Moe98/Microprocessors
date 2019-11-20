@@ -153,6 +153,9 @@ int main() {
                     MPI_Send(&sample[elements_per_process * i], numberOfSentElements, MPI_INT, i, 0, MPI_COMM_WORLD);
                     MPI_Send(&maxElement, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
                 }
+                int extra = -1;
+                for(int i = usedProcesses; i < number_of_processes; i++)
+                    MPI_Send(&extra, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
                 int totalFrequency[maxElement +  1], frequency[maxElement + 1];
                 for(int i = 0; i <= maxElement; i++)
                     totalFrequency[i] = frequency[i] = 0;
@@ -175,6 +178,7 @@ int main() {
             }
         } else { //slaves
             MPI_Recv(&elements_received, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            if(elements_received == -1) continue;
             MPI_Recv(&temp, elements_received, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             if (operation == 0) {
                 int sum = 0;
