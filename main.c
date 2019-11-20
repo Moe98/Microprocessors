@@ -48,8 +48,10 @@ void readTestCase(int testCaseNumber) {
 
 void readInput() {
     printf("Enter size of Sample:\n");
+    fflush(stdout);
     scanf("%d", &sampleSize);
     printf("Enter the values of the sample (Positive Integers < 1e6) separated by white spaces:\n");
+    fflush(stdout);
     sample = malloc(sampleSize * sizeof(int));
     for (int i = 0; i < sampleSize; i++) {
         scanf("%d", &sample[i]);
