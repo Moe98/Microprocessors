@@ -59,83 +59,86 @@ int main() {
 
     int elementsPerProcess = sampleSize / number_of_processes;
     int masterElements = sampleSize - (elementsPerProcess * number_of_processes);
-
+    int* slave_array;
     double avg;
-    int sum;
-    double squareSum;
-    double variance;
-    double standardDeviation;
-    for(int operation=0; operation < 3; operation++){
-        if(process_id == 0){
-            if(operation == 0) {
-                int *slave_array = malloc(sizeof(int) * elementsPerProcess);
-                MPI_Scatter(&sample[masterElements], elementsPerProcess, MPI_INT, slave_array, elementsPerProcess,
-                            MPI_INT, 0, MPI_COMM_WORLD);
-                int processSum = 0;
-                for (int i = 0; i < elementsPerProcess; i++) {
-                    processSum += slave_array[i];
-                    //printf("elements of process %d %d\n", process_id, slave_array[i]);
-                }
-                int *partialSums = NULL;
+    for (int operation = 0; operation < 3; operation++) {
+        if (operation == 0) {
+            slave_array = malloc(sizeof(int) * elementsPerProcess);
+            MPI_Scatter(&sample[masterElements], elementsPerProcess, MPI_INT, slave_array, elementsPerProcess, MPI_INT, 0, MPI_COMM_WORLD);
+            int processSum = 0;
+            for (int i = 0; i < elementsPerProcess; i++)
+                processSum += slave_array[i];
+            int *partialSums = NULL;
+            if (process_id == 0) {
+                partialSums = malloc(sizeof(int) * number_of_processes);
+            }
+            MPI_Gather(&processSum, 1, MPI_INT, partialSums, 1, MPI_INT, 0, MPI_COMM_WORLD);
+            if (process_id == 0) {
+                int totalSum = 0;
+                for (int i = 0; i < number_of_processes; i++)
+                    totalSum += partialSums[i];
+                for (int i = 0; i < masterElements; i++)
+                    totalSum += sample[i];
+                avg = 1.0 * totalSum / sampleSize;
                 if (process_id == 0) {
-                    partialSums = malloc(sizeof(int) * number_of_processes);
-                }
-                MPI_Gather(&processSum, 1, MPI_INT, partialSums, 1, MPI_INT, 0, MPI_COMM_WORLD);
-                if (process_id == 0) {
-                    int totalSum = 0;
-                    for (int i = 0; i < number_of_processes; i++) {
-                        //printf("received from process %d is %d\n", i, partialSums[i]);
-                        totalSum += partialSums[i];
-                    }
-                    for (int i = 0; i < masterElements; i++) {
-                        totalSum += sample[i];
-                    }
-                    sum = totalSum;
-                    avg = 1.0 * sum / sampleSize;
-                    if (process_id == 0) {
-                        printf("avg is %f\n", avg);
-                        printf("sum is %d\n", sum);
-                        //operation = 1;
-                    }
+                    printf("Sum is %d\n", totalSum);
+                    printf("Average is %.2f\n", avg);
                 }
             }
-            if(operation==1){
-                printf("avg here %f\n", avg);
-                int *slave_array = malloc(sizeof(int) * elementsPerProcess);
-                MPI_Scatter(&sample[masterElements], elementsPerProcess, MPI_INT, slave_array, elementsPerProcess, MPI_INT, 0, MPI_COMM_WORLD);
-                double processSquareSum = 0;
-                for(int i=0;i<elementsPerProcess;i++){
-                    processSquareSum += (slave_array[i] - avg) * (slave_array[i] - avg);
-                    printf("elements of process %d %d\n", process_id, slave_array[i]);
-                }
-                double *partialSquareSums=NULL;
-                if(process_id==0){
-                    partialSquareSums = malloc(sizeof(double)*number_of_processes);
-                }
-                MPI_Gather(&processSquareSum,1,MPI_DOUBLE,partialSquareSums,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
-                if(process_id==0){
-                    double totalSquareSum = 0;
-                    for(int i=0;i<number_of_processes;i++){
-                        //printf("received from process %d is %d\n", i, partialSums[i]);
-                        totalSquareSum += partialSquareSums[i];
+            MPI_Barrier(MPI_COMM_WORLD);
+            double *average = malloc(sizeof(double) * number_of_processes);
+            for(int i=0; i<number_of_processes; i++)
+                average[i] = avg;
+            MPI_Scatter(average,1,MPI_DOUBLE, &avg,1, MPI_DOUBLE,0,MPI_COMM_WORLD);
+            MPI_Barrier(MPI_COMM_WORLD);
+        } else if (operation == 1) {
+            double processSum = 0;
+            for (int i = 0; i < elementsPerProcess; i++)
+                processSum += (slave_array[i] * 1.0 - avg) * (slave_array[i] * 1.0 - avg);
+            double *partialSums = NULL;
+            if (process_id == 0) {
+                partialSums = malloc(sizeof(double) * number_of_processes);
+            }
+            MPI_Gather(&processSum, 1, MPI_DOUBLE, partialSums, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+            if (process_id == 0) {
+                double totalSum = 0;
+                for (int i = 0; i < number_of_processes; i++)
+                    totalSum += partialSums[i];
+                for (int i = 0; i < masterElements; i++)
+                    totalSum += (sample[i] * 1.0 - avg) * (sample[i] * 1.0 - avg);
+                printf("Standard Deviation %.2f\n", sqrt((totalSum)/(sampleSize*1.0-1)));
+                printf("Variance is %.2f\n", (totalSum)/(sampleSize*1.0-1));
+            }
+        } else if(operation == 2) {
+            int* freq = malloc((maxElement + 1) * sizeof(int));
+            for(int i = 0; i <= maxElement; i++)
+                freq[i] = 0;
+            for(int i = 0; i < elementsPerProcess; i++)
+                freq[slave_array[i]]++;
+            int* finalFreq = malloc(number_of_processes * (maxElement + 1) * sizeof(int));
+            MPI_Gather(freq, maxElement + 1, MPI_INT, finalFreq, maxElement + 1, MPI_INT, 0, MPI_COMM_WORLD);
+            MPI_Barrier(MPI_COMM_WORLD);
+            if(process_id == 0) {
+                int freqAnswer[maxElement + 1];
+                for(int i = 0; i <= maxElement; i++)
+                    freqAnswer[i] = 0;
+                for(int i = 0; i < number_of_processes; i++) {
+                    for(int j = 0; j < maxElement + 1; j++) {
+                        freqAnswer[j] += finalFreq[(maxElement + 1) * i + j];
                     }
-                    for(int i=0;i<masterElements;i++){
-                        totalSquareSum += (1.0 * sample[i] - avg) * (1.0 * sample[i] - avg);
-                    }
-                    squareSum = totalSquareSum;
-                    variance = squareSum / (sampleSize - 1);
-                    standardDeviation = sqrt(variance);
-                    if(process_id==0){
-                        printf("total sum is %f\n", totalSquareSum);
-                        printf("stdVar is %f\n", standardDeviation);
-                        printf("variance is %f\n", variance);
-                       // operation = 3;
-                    }
                 }
-
+                for(int i = 0; i < masterElements; i++)
+                    freqAnswer[sample[i]]++;
+                int maxSoFar = freqAnswer[0];
+                int mode = 0;
+                for(int i = 1; i <= maxElement; i++)
+                    if(freqAnswer[i] > maxSoFar) {
+                        maxSoFar = freqAnswer[i];
+                        mode = i;
+                    }
+                printf("Mode is %d\n", mode);
             }
         }
-
     }
     MPI_Finalize();
     return 0;
