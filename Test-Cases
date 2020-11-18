@@ -14,7 +14,7 @@ SUM 490
 Average 49
 StandardDeviation 64.16
 Variance 4116.22
-MODE 9
+MODE ANY_NUMBER
 
 10
 22 90 87 21 77 6 24 43 9 98
@@ -22,4 +22,4 @@ SUM 477
 Average 47.7
 StandardDeviation 36.39
 Variance 1324.01
-MODE 22
+MODE ANY_NUMBER
